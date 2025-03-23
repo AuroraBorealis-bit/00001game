@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金角银边-井字棋游戏</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 36px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>金角银边-井字棋游戏</h1>
+    <p id="playerLabel">当前玩家：X</p>
+    <table id="board"></table>
+    <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
+
+    <script>
+        // 棋盘大小
+        const s = 4;
+        // 初始化棋盘，-1 表示空白
+        let board = Array.from({ length: s }, () => Array(s).fill(-1));
+        // 游戏结果，-1 表示未分出胜负，0 表示 O 获胜，1 表示 X 获胜
+        let result = -1;
+        // 当前玩家，-1 表示 X，1 表示 O
+        let currentPlayer = -1;
+        // 步数
+        let step = 1;
+
+        // 创建棋盘
+        const boardElement = document.getElementById('board');
+        for (let i = 0; i < s; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < s; j++) {
+                const cell = document.createElement('td');
+                cell.addEventListener('click', () => onClick(i, j));
+                row.appendChild(cell);
+            }
+            boardElement.appendChild(row);
+        }
+
+        // 检查是否有玩家获胜的函数
+        function checkWinner() {
+            // 检查行
+            for (let i = 0; i < s; i++) {
+                let numberX = 0;
+                let numberO = 0;
+                if (board[i][1]!== board[i][2]) continue;
+                for (let j = 0; j < s; j++) {
+                    if (board[i][j] === 1) numberX++;
+                    else if (board[i][j] === 0) numberO++;
+                    else continue;
+                    if (numberX === 3 || numberO === 3) {
+                        result = numberX === 3? 1 : 0;
+                        return;
+                    }
+                }
+            }
+
+            // 检查列
+            for (let j = 0; j < s; j++) {
+                let numberX = 0;
+                let numberO = 0;
+                if (board[1][j]!== board[2][j]) continue;
+                for (let i = 0; i < s; i++) {
+                    if (board[i][j] === 1) numberX++;
+                    else if (board[i][j] === 0) numberO++;
+                    else continue;
+                    if (numberX === 3 || numberO === 3) {
+                        result = numberX === 3? 1 : 0;
+                        return;
+                    }
+                }
+            }
+
+            // 检查对角线
+            function checkAndSet(r1, c1, r2, c2, r3, c3) {
+                if (result === -1 && board[r1][c1] === board[r2][c2] && board[r2][c2] === board[r3][c3]) {
+                    result = board[r2][c2];
+                }
+            }
+
+            checkAndSet(0, 0, 1, 1, 2, 2); // 左上到右下
+            checkAndSet(1, 1, 2, 2, 3, 3); // 左上到右下
+            checkAndSet(0, 3, 1, 2, 2, 1); // 右上到左下
+            checkAndSet(3, 0, 2, 1, 1, 2); // 右上到左下
+            checkAndSet(0, 1, 1, 2, 2, 3); // 右上
+            checkAndSet(1, 0, 2, 1, 3, 2); // 左下
+            checkAndSet(0, 2, 1, 1, 2, 0); // 左上
+            checkAndSet(1, 3, 2, 2, 3, 1); // 右下
+        }
+
+        // 处理按钮点击事件的函数
+        function onClick(row, col) {
+            if (result!== -1) {
+                alert("游戏已结束，请重新开始。");
+                return;
+            }
+            if (board[row][col]!== -1) {
+                alert("该位置已被占用，请选择其他位置。");
+                return;
+            }
+            if (1 <= row && row < 3 && 1 <= col && col < 3 && step < 12) {
+                alert("请在第 12 步之前选择边缘位置。");
+                return;
+            }
+            if (currentPlayer === -1) {
+                board[row][col] = 1;
+                boardElement.rows[row].cells[col].textContent = 'X';
+                document.getElementById('playerLabel').textContent = '当前玩家：O';
+            } else {
+                board[row][col] = 0;
+                boardElement.rows[row].cells[col].textContent = 'O';
+                document.getElementById('playerLabel').textContent = '当前玩家：X';
+            }
+            step++;
+            if (step === 11) {
+                alert("注意：O 现在可以输入中心位置。");
+            }
+            currentPlayer *= -1;
+            if (step > 4) {
+                checkWinner();
+                if (result === 1) {
+                    showEndMessage("恭喜！玩家 X 赢得了游戏！");
+                } else if (result === 0) {
+                    showEndMessage("恭喜！玩家 O 赢得了游戏！");
+                } else if (step === s * s) {
+                    showEndMessage("平局，没有人获胜。");
+                }
+            }
+        }
+
+        // 显示游戏结束信息，并提供再来一局的选项
+        function showEndMessage(message) {
+            const choice = confirm(message + "\n是否再来一局？");
+            if (choice) {
+                // 重置游戏状态
+                result = -1;
+                step = 1;
+                currentPlayer = -1;
+                board = Array.from({ length: s }, () => Array(s).fill(-1));
+                // 重置棋盘按钮的文本
+                for (let i = 0; i < s; i++) {
+                    for (let j = 0; j < s; j++) {
+                        boardElement.rows[i].cells[j].textContent = '';
+                    }
+                }
+                document.getElementById('playerLabel').textContent = '当前玩家：X';
+            } else {
+                window.close();
+            }
+        }
+    </script>
+</body>
+
+</html>
