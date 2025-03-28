@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>金角银边-井字棋游戏（玩家 vs 程序）</title>
+    <title>金角银边-井字棋游戏合集</title>
     <style>
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -15,218 +17,259 @@
             margin: 0;
         }
 
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+            width: 420px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
         table {
             border-collapse: collapse;
+            margin: 20px auto;
         }
 
         td {
             width: 100px;
             height: 100px;
-            border: 1px solid black;
+            border: 2px solid #ccc;
             text-align: center;
-            font-size: 36px;
+            font-size: 48px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        td:hover {
+            background-color: #e0e0e0;
+        }
+
+        p {
+            font-size: 18px;
+            color: #666;
         }
     </style>
 </head>
 
 <body>
-    <h1>金角银边-井字棋游戏（玩家 vs 程序）</h1>
-    <p id="playerLabel">当前玩家：X</p>
-    <table id="board"></table>
-    <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
+    <h1>金角银边-井字棋游戏合集</h1>
+
+    <!-- 玩家对战程序游戏 -->
+    <div class="game-container">
+        <h2>玩家 vs 程序</h2>
+        <p id="playerLabelPVE">当前玩家：X</p>
+        <table id="boardPVE"></table>
+        <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
+    </div>
+
+    <!-- 玩家对战游戏 -->
+    <div class="game-container">
+        <h2>玩家对战</h2>
+        <p id="playerLabelPVP">当前玩家：X</p>
+        <table id="boardPVP"></table>
+        <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
+    </div>
 
     <script>
-        // 棋盘大小
-        const s = 4;
-        // 初始化棋盘，-1 表示空白
-        let board = Array.from({ length: s }, () => Array(s).fill(-1));
-        // 游戏结果，-1 表示未分出胜负，0 表示 O 获胜，1 表示 X 获胜
-        let result = -1;
-        // 步数
-        let step = 1;
-        // 棋盘元素
-        const boardElement = document.getElementById('board');
+        // 玩家对战程序游戏部分
+        const sPVE = 4;
+        let boardPVE = Array.from({ length: sPVE }, () => Array(sPVE).fill(-1));
+        let resultPVE = -1;
+        let stepPVE = 1;
+        const boardElementPVE = document.getElementById('boardPVE');
 
         // 创建棋盘
-        for (let i = 0; i < s; i++) {
+        for (let i = 0; i < sPVE; i++) {
             const row = document.createElement('tr');
-            for (let j = 0; j < s; j++) {
+            for (let j = 0; j < sPVE; j++) {
                 const cell = document.createElement('td');
-                cell.addEventListener('click', () => handlePlayerClick(i, j));
+                cell.addEventListener('click', () => handlePlayerClickPVE(i, j));
                 row.appendChild(cell);
             }
-            boardElement.appendChild(row);
+            boardElementPVE.appendChild(row);
         }
 
         // 检查是否有玩家获胜的函数
-        function checkWinner() {
+        function checkWinnerPVE() {
             // 检查行
-            for (let i = 0; i < s; i++) {
+            for (let i = 0; i < sPVE; i++) {
                 let numberX = 0;
                 let numberO = 0;
-                if (board[i][1]!== board[i][2]) continue;
-                for (let j = 0; j < s; j++) {
-                    if (board[i][j] === 1) numberX++;
-                    else if (board[i][j] === 0) numberO++;
+                if (boardPVE[i][1]!== boardPVE[i][2]) continue;
+                for (let j = 0; j < sPVE; j++) {
+                    if (boardPVE[i][j] === 1) numberX++;
+                    else if (boardPVE[i][j] === 0) numberO++;
                     else continue;
                     if (numberX === 3 || numberO === 3) {
-                        result = numberX === 3? 1 : 0;
+                        resultPVE = numberX === 3? 1 : 0;
                         return;
                     }
                 }
             }
 
             // 检查列
-            for (let j = 0; j < s; j++) {
+            for (let j = 0; j < sPVE; j++) {
                 let numberX = 0;
                 let numberO = 0;
-                if (board[1][j]!== board[2][j]) continue;
-                for (let i = 0; i < s; i++) {
-                    if (board[i][j] === 1) numberX++;
-                    else if (board[i][j] === 0) numberO++;
+                if (boardPVE[1][j]!== boardPVE[2][j]) continue;
+                for (let i = 0; i < sPVE; i++) {
+                    if (boardPVE[i][j] === 1) numberX++;
+                    else if (boardPVE[i][j] === 0) numberO++;
                     else continue;
                     if (numberX === 3 || numberO === 3) {
-                        result = numberX === 3? 1 : 0;
+                        resultPVE = numberX === 3? 1 : 0;
                         return;
                     }
                 }
             }
 
             // 检查对角线
-            function checkAndSet(r1, c1, r2, c2, r3, c3) {
-                if (result === -1 && board[r1][c1] === board[r2][c2] && board[r2][c2] === board[r3][c3]) {
-                    result = board[r2][c2];
+            function checkAndSetPVE(r1, c1, r2, c2, r3, c3) {
+                if (resultPVE === -1 && boardPVE[r1][c1] === boardPVE[r2][c2] && boardPVE[r2][c2] === boardPVE[r3][c3]) {
+                    resultPVE = boardPVE[r2][c2];
                 }
             }
 
-            checkAndSet(0, 0, 1, 1, 2, 2); // 左上到右下
-            checkAndSet(1, 1, 2, 2, 3, 3); // 左上到右下
-            checkAndSet(0, 3, 1, 2, 2, 1); // 右上到左下
-            checkAndSet(3, 0, 2, 1, 1, 2); // 右上到左下
-            checkAndSet(0, 1, 1, 2, 2, 3); // 右上
-            checkAndSet(1, 0, 2, 1, 3, 2); // 左下
-            checkAndSet(0, 2, 1, 1, 2, 0); // 左上
-            checkAndSet(1, 3, 2, 2, 3, 1); // 右下
+            checkAndSetPVE(0, 0, 1, 1, 2, 2);
+            checkAndSetPVE(1, 1, 2, 2, 3, 3);
+            checkAndSetPVE(0, 3, 1, 2, 2, 1);
+            checkAndSetPVE(3, 0, 2, 1, 1, 2);
+            checkAndSetPVE(0, 1, 1, 2, 2, 3);
+            checkAndSetPVE(1, 0, 2, 1, 3, 2);
+            checkAndSetPVE(0, 2, 1, 1, 2, 0);
+            checkAndSetPVE(1, 3, 2, 2, 3, 1);
         }
 
         // 处理玩家点击事件
-        function handlePlayerClick(row, col) {
-            if (result!== -1) {
+        function handlePlayerClickPVE(row, col) {
+            if (resultPVE!== -1) {
                 alert("游戏已结束，请重新开始。");
                 return;
             }
-            if (board[row][col]!== -1) {
+            if (boardPVE[row][col]!== -1) {
                 alert("该位置已被占用，请选择其他位置。");
                 return;
             }
-            if (1 <= row && row < 3 && 1 <= col && col < 3 && step < 12) {
+            if (1 <= row && row < 3 && 1 <= col && col < 3 && stepPVE < 12) {
                 alert("请在第 12 步之前选择边缘位置。");
                 return;
             }
-            board[row][col] = 1;
-            boardElement.rows[row].cells[col].textContent = 'X';
-            step++;
-            document.getElementById('playerLabel').textContent = '当前玩家：O';
-            if (step > 4) {
-                checkWinner();
-                if (result === 1) {
-                    showEndMessage("恭喜！你赢得了游戏！");
-                } else if (step < s * s) {
-                    setTimeout(handleAIInput, 500);
-                } else if (step === s * s) {
-                    showEndMessage("平局，没有人获胜。");
+            boardPVE[row][col] = 1;
+            boardElementPVE.rows[row].cells[col].textContent = 'X';
+            stepPVE++;
+            document.getElementById('playerLabelPVE').textContent = '当前玩家：O';
+            if (stepPVE > 4) {
+                checkWinnerPVE();
+                if (resultPVE === 1) {
+                    showEndMessagePVE("恭喜！你赢得了游戏！");
+                } else if (stepPVE < sPVE * sPVE) {
+                    setTimeout(handleAIInputPVE, 500);
+                } else if (stepPVE === sPVE * sPVE) {
+                    showEndMessagePVE("平局，没有人获胜。");
                 }
             } else {
-                setTimeout(handleAIInput, 500);
+                setTimeout(handleAIInputPVE, 500);
             }
         }
 
         // 简单的 AI 算法，优先检查能获胜的位置，其次检查阻止玩家获胜的位置，再检测特殊情况，最后随机选择
-        function handleAIInput() {
+        function handleAIInputPVE() {
             let winRow = -1, winCol = -1;
             let blockRow = -1, blockCol = -1;
             let specialRow = -1, specialCol = -1;
             let availableMoves = [];
 
             // 检查是否有能让 AI 获胜的位置
-            for (let i = 0; i < s; i++) {
-                for (let j = 0; j < s; j++) {
-                    if (board[i][j] === -1) {
-                        if (1 <= i && i < 3 && 1 <= j && j < 3 && step < 12) continue;
-                        board[i][j] = 0;
-                        checkWinner();
-                        if (result === 0) {
+            for (let i = 0; i < sPVE; i++) {
+                for (let j = 0; j < sPVE; j++) {
+                    if (boardPVE[i][j] === -1) {
+                        if (1 <= i && i < 3 && 1 <= j && j < 3 && stepPVE < 12) continue;
+                        boardPVE[i][j] = 0;
+                        checkWinnerPVE();
+                        if (resultPVE === 0) {
                             winRow = i;
                             winCol = j;
                         }
-                        result = -1;
-                        board[i][j] = -1;
+                        resultPVE = -1;
+                        boardPVE[i][j] = -1;
                     }
                 }
             }
 
             if (winRow!== -1) {
-                board[winRow][winCol] = 0;
-                boardElement.rows[winRow].cells[winCol].textContent = 'O';
-                step++;
-                document.getElementById('playerLabel').textContent = '当前玩家：X';
-                checkWinner();
-                if (result === 0) {
-                    showEndMessage("很遗憾，你输了。");
+                boardPVE[winRow][winCol] = 0;
+                boardElementPVE.rows[winRow].cells[winCol].textContent = 'O';
+                stepPVE++;
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                checkWinnerPVE();
+                if (resultPVE === 0) {
+                    showEndMessagePVE("很遗憾，你输了。");
                 }
                 return;
             }
 
             // 检查是否有需要阻止玩家获胜的位置
-            for (let i = 0; i < s; i++) {
-                for (let j = 0; j < s; j++) {
-                    if (board[i][j] === -1) {
-                        if (1 <= i && i < 3 && 1 <= j && j < 3 && step < 12) continue;
-                        board[i][j] = 1;
-                        checkWinner();
-                        if (result === 1) {
+            for (let i = 0; i < sPVE; i++) {
+                for (let j = 0; j < sPVE; j++) {
+                    if (boardPVE[i][j] === -1) {
+                        if (1 <= i && i < 3 && 1 <= j && j < 3 && stepPVE < 12) continue;
+                        boardPVE[i][j] = 1;
+                        checkWinnerPVE();
+                        if (resultPVE === 1) {
                             blockRow = i;
                             blockCol = j;
                         }
-                        result = -1;
-                        board[i][j] = -1;
+                        resultPVE = -1;
+                        boardPVE[i][j] = -1;
                     }
                 }
             }
 
             if (blockRow!== -1) {
-                board[blockRow][blockCol] = 0;
-                boardElement.rows[blockRow].cells[blockCol].textContent = 'O';
-                step++;
-                document.getElementById('playerLabel').textContent = '当前玩家：X';
-                if (step > 4) {
-                    checkWinner();
-                    if (result === 0) {
-                        showEndMessage("很遗憾，你输了。");
-                    } else if (step === s * s) {
-                        showEndMessage("平局，没有人获胜。");
+                boardPVE[blockRow][blockCol] = 0;
+                boardElementPVE.rows[blockRow].cells[blockCol].textContent = 'O';
+                stepPVE++;
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                if (stepPVE > 4) {
+                    checkWinnerPVE();
+                    if (resultPVE === 0) {
+                        showEndMessagePVE("很遗憾，你输了。");
+                    } else if (stepPVE === sPVE * sPVE) {
+                        showEndMessagePVE("平局，没有人获胜。");
                     }
                 }
                 return;
             }
 
             // 在前六步中检测特殊情况
-            if (step <= 6) {
+            if (stepPVE <= 6) {
                 // 检查行
-                for (let i = 0; i < s; i++) {
-                    let hasXInMiddle = (board[i][1] === 1 || board[i][2] === 1);
+                for (let i = 0; i < sPVE; i++) {
+                    let hasXInMiddle = (boardPVE[i][1] === 1 || boardPVE[i][2] === 1);
                     let allOthersEmpty = true;
-                    for (let j = 0; j < s; j++) {
-                        if (j!== 1 && j!== 2 && board[i][j]!== -1) {
+                    for (let j = 0; j < sPVE; j++) {
+                        if (j!== 1 && j!== 2 && boardPVE[i][j]!== -1) {
                             allOthersEmpty = false;
                             break;
                         }
                     }
                     if (hasXInMiddle && allOthersEmpty) {
-                        for (let j = 0; j < s; j++) {
-                            if (board[i][j] === -1) {
-                                if (1 <= i && i < 3 && 1 <= j && j < 3 && step < 12) continue;
+                        for (let j = 0; j < sPVE; j++) {
+                            if (boardPVE[i][j] === -1) {
+                                if (1 <= i && i < 3 && 1 <= j && j < 3 && stepPVE < 12) continue;
                                 specialRow = i;
                                 specialCol = j;
                                 break;
@@ -238,19 +281,19 @@
 
                 // 若行中未找到，检查列
                 if (specialRow === -1) {
-                    for (let j = 0; j < s; j++) {
-                        let hasXInMiddle = (board[1][j] === 1 || board[2][j] === 1);
+                    for (let j = 0; j < sPVE; j++) {
+                        let hasXInMiddle = (boardPVE[1][j] === 1 || boardPVE[2][j] === 1);
                         let allOthersEmpty = true;
-                        for (let i = 0; i < s; i++) {
-                            if (i!== 1 && i!== 2 && board[i][j]!== -1) {
+                        for (let i = 0; i < sPVE; i++) {
+                            if (i!== 1 && i!== 2 && boardPVE[i][j]!== -1) {
                                 allOthersEmpty = false;
                                 break;
                             }
                         }
                         if (hasXInMiddle && allOthersEmpty) {
-                            for (let i = 0; i < s; i++) {
-                                if (board[i][j] === -1) {
-                                    if (1 <= i && i < 3 && 1 <= j && j < 3 && step < 12) continue;
+                            for (let i = 0; i < sPVE; i++) {
+                                if (boardPVE[i][j] === -1) {
+                                    if (1 <= i && i < 3 && 1 <= j && j < 3 && stepPVE < 12) continue;
                                     specialRow = i;
                                     specialCol = j;
                                     break;
@@ -263,26 +306,26 @@
             }
 
             if (specialRow!== -1) {
-                board[specialRow][specialCol] = 0;
-                boardElement.rows[specialRow].cells[specialCol].textContent = 'O';
-                step++;
-                document.getElementById('playerLabel').textContent = '当前玩家：X';
-                if (step > 4) {
-                    checkWinner();
-                    if (result === 0) {
-                        showEndMessage("很遗憾，你输了。");
-                    } else if (step === s * s) {
-                        showEndMessage("平局，没有人获胜。");
+                boardPVE[specialRow][specialCol] = 0;
+                boardElementPVE.rows[specialRow].cells[specialCol].textContent = 'O';
+                stepPVE++;
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                if (stepPVE > 4) {
+                    checkWinnerPVE();
+                    if (resultPVE === 0) {
+                        showEndMessagePVE("很遗憾，你输了。");
+                    } else if (stepPVE === sPVE * sPVE) {
+                        showEndMessagePVE("平局，没有人获胜。");
                     }
                 }
                 return;
             }
 
             // 收集所有可用的位置
-            for (let i = 0; i < s; i++) {
-                for (let j = 0; j < s; j++) {
-                    if (board[i][j] === -1) {
-                        if (1 <= i && i < 3 && 1 <= j && j < 3 && step < 12) continue;
+            for (let i = 0; i < sPVE; i++) {
+                for (let j = 0; j < sPVE; j++) {
+                    if (boardPVE[i][j] === -1) {
+                        if (1 <= i && i < 3 && 1 <= j && j < 3 && stepPVE < 12) continue;
                         availableMoves.push([i, j]);
                     }
                 }
@@ -291,36 +334,167 @@
             if (availableMoves.length > 0) {
                 let randomIndex = Math.floor(Math.random() * availableMoves.length);
                 let [row, col] = availableMoves[randomIndex];
-                board[row][col] = 0;
-                boardElement.rows[row].cells[col].textContent = 'O';
-                step++;
-                document.getElementById('playerLabel').textContent = '当前玩家：X';
-                if (step > 4) {
-                    checkWinner();
-                    if (result === 0) {
-                        showEndMessage("很遗憾，你输了。");
-                    } else if (step === s * s) {
-                        showEndMessage("平局，没有人获胜。");
+                boardPVE[row][col] = 0;
+                boardElementPVE.rows[row].cells[col].textContent = 'O';
+                stepPVE++;
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                if (stepPVE > 4) {
+                    checkWinnerPVE();
+                    if (resultPVE === 0) {
+                        showEndMessagePVE("很遗憾，你输了。");
+                    } else if (stepPVE === sPVE * sPVE) {
+                        showEndMessagePVE("平局，没有人获胜。");
                     }
                 }
             }
         }
 
         // 显示游戏结束信息，并提供再来一局的选项
-        function showEndMessage(message) {
+        function showEndMessagePVE(message) {
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
                 // 重置游戏状态
-                result = -1;
-                step = 1;
-                board = Array.from({ length: s }, () => Array(s).fill(-1));
+                resultPVE = -1;
+                stepPVE = 1;
+                boardPVE = Array.from({ length: sPVE }, () => Array(sPVE).fill(-1));
                 // 重置棋盘按钮的文本
-                for (let i = 0; i < s; i++) {
-                    for (let j = 0; j < s; j++) {
-                        boardElement.rows[i].cells[j].textContent = '';
+                for (let i = 0; i < sPVE; i++) {
+                    for (let j = 0; j < sPVE; j++) {
+                        boardElementPVE.rows[i].cells[j].textContent = '';
                     }
                 }
-                document.getElementById('playerLabel').textContent = '当前玩家：X';
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+            } else {
+                window.close();
+            }
+        }
+
+        // 玩家对战游戏部分
+        const sPVP = 4;
+        let boardPVP = Array.from({ length: sPVP }, () => Array(sPVP).fill(-1));
+        let resultPVP = -1;
+        let currentPlayerPVP = -1;
+        let stepPVP = 1;
+        const boardElementPVP = document.getElementById('boardPVP');
+
+        // 创建棋盘
+        for (let i = 0; i < sPVP; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < sPVP; j++) {
+                const cell = document.createElement('td');
+                cell.addEventListener('click', () => onClickPVP(i, j));
+                row.appendChild(cell);
+            }
+            boardElementPVP.appendChild(row);
+        }
+
+        // 检查是否有玩家获胜的函数
+        function checkWinnerPVP() {
+            // 检查行
+            for (let i = 0; i < sPVP; i++) {
+                let numberX = 0;
+                let numberO = 0;
+                if (boardPVP[i][1]!== boardPVP[i][2]) continue;
+                for (let j = 0; j < sPVP; j++) {
+                    if (boardPVP[i][j] === 1) numberX++;
+                    else if (boardPVP[i][j] === 0) numberO++;
+                    else continue;
+                    if (numberX === 3 || numberO === 3) {
+                        resultPVP = numberX === 3? 1 : 0;
+                        return;
+                    }
+                }
+            }
+
+            // 检查列
+            for (let j = 0; j < sPVP; j++) {
+                let numberX = 0;
+                let numberO = 0;
+                if (boardPVP[1][j]!== boardPVP[2][j]) continue;
+                for (let i = 0; i < sPVP; i++) {
+                    if (boardPVP[i][j] === 1) numberX++;
+                    else if (boardPVP[i][j] === 0) numberO++;
+                    else continue;
+                    if (numberX === 3 || numberO === 3) {
+                        resultPVP = numberX === 3? 1 : 0;
+                        return;
+                    }
+                }
+            }
+
+            // 检查对角线
+            function checkAndSetPVP(r1, c1, r2, c2, r3, c3) {
+                if (resultPVP === -1 && boardPVP[r1][c1] === boardPVP[r2][c2] && boardPVP[r2][c2] === boardPVP[r3][c3]) {
+                    resultPVP = boardPVP[r2][c2];
+                }
+            }
+
+            checkAndSetPVP(0, 0, 1, 1, 2, 2);
+            checkAndSetPVP(1, 1, 2, 2, 3, 3);
+            checkAndSetPVP(0, 3, 1, 2, 2, 1);
+            checkAndSetPVP(3, 0, 2, 1, 1, 2);
+            checkAndSetPVP(0, 1, 1, 2, 2, 3);
+            checkAndSetPVP(1, 0, 2, 1, 3, 2);
+            checkAndSetPVP(0, 2, 1, 1, 2, 0);
+            checkAndSetPVP(1, 3, 2, 2, 3, 1);
+        }
+
+        // 处理按钮点击事件的函数
+        function onClickPVP(row, col) {
+            if (resultPVP!== -1) {
+                alert("游戏已结束，请重新开始。");
+                return;
+            }
+            if (boardPVP[row][col]!== -1) {
+                alert("该位置已被占用，请选择其他位置。");
+                return;
+            }
+            if (1 <= row && row < 3 && 1 <= col && col < 3 && stepPVP < 12) {
+                alert("请在第 12 步之前选择边缘位置。");
+                return;
+            }
+            if (currentPlayerPVP === -1) {
+                boardPVP[row][col] = 1;
+                boardElementPVP.rows[row].cells[col].textContent = 'X';
+                document.getElementById('playerLabelPVP').textContent = '当前玩家：O';
+            } else {
+                boardPVP[row][col] = 0;
+                boardElementPVP.rows[row].cells[col].textContent = 'O';
+                document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
+            }
+            stepPVP++;
+            if (stepPVP === 11) {
+                alert("注意：O 现在可以输入中心位置。");
+            }
+            currentPlayerPVP *= -1;
+            if (stepPVP > 4) {
+                checkWinnerPVP();
+                if (resultPVP === 1) {
+                    showEndMessagePVP("恭喜！玩家 X 赢得了游戏！");
+                } else if (resultPVP === 0) {
+                    showEndMessagePVP("恭喜！玩家 O 赢得了游戏！");
+                } else if (stepPVP === sPVP * sPVP) {
+                    showEndMessagePVP("平局，没有人获胜。");
+                }
+            }
+        }
+
+        // 显示游戏结束信息，并提供再来一局的选项
+        function showEndMessagePVP(message) {
+            const choice = confirm(message + "\n是否再来一局？");
+            if (choice) {
+                // 重置游戏状态
+                resultPVP = -1;
+                stepPVP = 1;
+                currentPlayerPVP = -1;
+                boardPVP = Array.from({ length: sPVP }, () => Array(sPVP).fill(-1));
+                // 重置棋盘按钮的文本
+                for (let i = 0; i < sPVP; i++) {
+                    for (let j = 0; j < sPVP; j++) {
+                        boardElementPVP.rows[i].cells[j].textContent = '';
+                    }
+                }
+                document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
             } else {
                 window.close();
             }
@@ -328,4 +502,4 @@
     </script>
 </body>
 
-</html>
+</html>    
