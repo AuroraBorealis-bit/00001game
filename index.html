@@ -61,11 +61,25 @@
             font-size: 18px;
             color: #666;
         }
+
+        /* 媒体查询，针对小屏幕设备（如手机）进行优化 */
+        @media (max-width: 480px) {
+            .game-container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            td {
+                width: 70px;
+                height: 70px;
+                font-size: 36px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <h1>金角银边-井字棋游戏合集</h1>
+    <h1>金角银边-井字棋游戏</h1>
 
     <!-- 玩家对战程序游戏 -->
     <div class="game-container">
@@ -502,4 +516,4 @@
     </script>
 </body>
 
-</html>    
+</html>
