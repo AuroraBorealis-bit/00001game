@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>金角银边-井字棋游戏合集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>金角银边-井字棋游戏 v2.1</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,13 +15,14 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 0 10px; /* 增加左右内边距，避免内容紧贴屏幕边缘 */
+            padding: 0 10px;
         }
 
         h1 {
             color: #333;
             margin-bottom: 30px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            font-size: 24px;
         }
 
         .game-container {
@@ -29,30 +30,41 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            margin: 20px;
-            width: auto; /* 宽度自适应 */
-            max-width: 420px; /* 最大宽度限制 */
+            margin: 10px;
+            width: 90%;
+            max-width: 420px;
             text-align: center;
         }
 
         h2 {
             color: #555;
             margin-bottom: 10px;
+            font-size: 20px;
         }
 
         table {
             border-collapse: collapse;
             margin: 20px auto;
+            width: 100%;
         }
 
         td {
-            width: 100px;
-            height: 100px;
+            width: 25%;
+            height: auto;
+            padding-bottom: 25%;
             border: 2px solid #ccc;
             text-align: center;
-            font-size: 48px;
+            font-size: 36px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        td div {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         td:hover {
@@ -60,15 +72,54 @@
         }
 
         p {
-            font-size: 18px;
+            font-size: 16px;
             color: #666;
         }
 
         #difficulty-select {
             margin-bottom: 20px;
-            font-size: 18px; /* 调大字体大小 */
-            padding: 10px 15px; /* 增加内边距 */
-            min-width: 150px; /* 设置最小宽度 */
+            font-size: 16px;
+            padding: 10px 15px;
+            min-width: 150px;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #version {
+            font-size: 14px;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            td {
+                font-size: 24px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+
+            #difficulty-select {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -85,6 +136,7 @@
         <p id="playerLabelPVE">当前玩家：X</p>
         <table id="boardPVE"></table>
         <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
+        <button id="restartPVE">重新开始</button>
     </div>
 
     <!-- 玩家对战游戏 -->
@@ -93,7 +145,10 @@
         <p id="playerLabelPVP">当前玩家：X</p>
         <table id="boardPVP"></table>
         <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
+        <button id="restartPVP">重新开始</button>
     </div>
+
+    <p id="version">版本号: 2.2</p>
 
     <script>
         // 玩家对战程序游戏部分
@@ -103,12 +158,15 @@
         let stepPVE = 1;
         const boardElementPVE = document.getElementById('boardPVE');
         const difficultySelect = document.getElementById('difficulty-select');
+        const restartButtonPVE = document.getElementById('restartPVE');
 
         // 创建棋盘
         for (let i = 0; i < sPVE; i++) {
             const row = document.createElement('tr');
             for (let j = 0; j < sPVE; j++) {
                 const cell = document.createElement('td');
+                const contentDiv = document.createElement('div');
+                cell.appendChild(contentDiv);
                 cell.addEventListener('click', () => handlePlayerClickPVE(i, j));
                 row.appendChild(cell);
             }
@@ -181,7 +239,7 @@
                 return;
             }
             boardPVE[row][col] = 1;
-            boardElementPVE.rows[row].cells[col].textContent = 'X';
+            boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'X';
             stepPVE++;
             document.getElementById('playerLabelPVE').textContent = '当前玩家：O';
             if (stepPVE > 4) {
@@ -225,7 +283,7 @@
 
             if (winRow!== -1) {
                 boardPVE[winRow][winCol] = 0;
-                boardElementPVE.rows[winRow].cells[winCol].textContent = 'O';
+                boardElementPVE.rows[winRow].cells[winCol].querySelector('div').textContent = 'O';
                 stepPVE++;
                 document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
                 checkWinnerPVE();
@@ -254,7 +312,7 @@
 
             if (blockRow!== -1) {
                 boardPVE[blockRow][blockCol] = 0;
-                boardElementPVE.rows[blockRow].cells[blockCol].textContent = 'O';
+                boardElementPVE.rows[blockRow].cells[blockCol].querySelector('div').textContent = 'O';
                 stepPVE++;
                 document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
                 if (stepPVE > 4) {
@@ -426,7 +484,7 @@
 
             if (specialRow!== -1) {
                 boardPVE[specialRow][specialCol] = 0;
-                boardElementPVE.rows[specialRow].cells[specialCol].textContent = 'O';
+                boardElementPVE.rows[specialRow].cells[specialCol].querySelector('div').textContent = 'O';
                 stepPVE++;
                 document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
                 if (stepPVE > 4) {
@@ -454,7 +512,7 @@
                 let randomIndex = Math.floor(Math.random() * availableMoves.length);
                 let [row, col] = availableMoves[randomIndex];
                 boardPVE[row][col] = 0;
-                boardElementPVE.rows[row].cells[col].textContent = 'O';
+                boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
                 stepPVE++;
                 document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
                 if (stepPVE > 4) {
@@ -472,21 +530,27 @@
         function showEndMessagePVE(message) {
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
-                // 重置游戏状态
-                resultPVE = -1;
-                stepPVE = 1;
-                boardPVE = Array.from({ length: sPVE }, () => Array(sPVE).fill(-1));
-                // 重置棋盘按钮的文本
-                for (let i = 0; i < sPVE; i++) {
-                    for (let j = 0; j < sPVE; j++) {
-                        boardElementPVE.rows[i].cells[j].textContent = '';
-                    }
-                }
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                restartGamePVE();
             } else {
                 window.close();
             }
         }
+
+        // 重新开始玩家对战程序游戏
+        function restartGamePVE() {
+            resultPVE = -1;
+            stepPVE = 1;
+            boardPVE = Array.from({ length: sPVE }, () => Array(sPVE).fill(-1));
+            for (let i = 0; i < sPVE; i++) {
+                for (let j = 0; j < sPVE; j++) {
+                    boardElementPVE.rows[i].cells[j].querySelector('div').textContent = '';
+                }
+            }
+            document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+        }
+
+        // 为重新开始按钮绑定事件
+        restartButtonPVE.addEventListener('click', restartGamePVE);
 
         // 玩家对战游戏部分
         const sPVP = 4;
@@ -495,12 +559,15 @@
         let currentPlayerPVP = -1;
         let stepPVP = 1;
         const boardElementPVP = document.getElementById('boardPVP');
+        const restartButtonPVP = document.getElementById('restartPVP');
 
         // 创建棋盘
         for (let i = 0; i < sPVP; i++) {
             const row = document.createElement('tr');
             for (let j = 0; j < sPVP; j++) {
                 const cell = document.createElement('td');
+                const contentDiv = document.createElement('div');
+                cell.appendChild(contentDiv);
                 cell.addEventListener('click', () => onClickPVP(i, j));
                 row.appendChild(cell);
             }
@@ -574,11 +641,11 @@
             }
             if (currentPlayerPVP === -1) {
                 boardPVP[row][col] = 1;
-                boardElementPVP.rows[row].cells[col].textContent = 'X';
+                boardElementPVP.rows[row].cells[col].querySelector('div').textContent = 'X';
                 document.getElementById('playerLabelPVP').textContent = '当前玩家：O';
             } else {
                 boardPVP[row][col] = 0;
-                boardElementPVP.rows[row].cells[col].textContent = 'O';
+                boardElementPVP.rows[row].cells[col].querySelector('div').textContent = 'O';
                 document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
             }
             stepPVP++;
@@ -602,23 +669,29 @@
         function showEndMessagePVP(message) {
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
-                // 重置游戏状态
-                resultPVP = -1;
-                stepPVP = 1;
-                currentPlayerPVP = -1;
-                boardPVP = Array.from({ length: sPVP }, () => Array(sPVP).fill(-1));
-                // 重置棋盘按钮的文本
-                for (let i = 0; i < sPVP; i++) {
-                    for (let j = 0; j < sPVP; j++) {
-                        boardElementPVP.rows[i].cells[j].textContent = '';
-                    }
-                }
-                document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
+                restartGamePVP();
             } else {
                 window.close();
             }
         }
+
+        // 重新开始玩家对战游戏
+        function restartGamePVP() {
+            resultPVP = -1;
+            stepPVP = 1;
+            currentPlayerPVP = -1;
+            boardPVP = Array.from({ length: sPVP }, () => Array(sPVP).fill(-1));
+            for (let i = 0; i < sPVP; i++) {
+                for (let j = 0; j < sPVP; j++) {
+                    boardElementPVP.rows[i].cells[j].querySelector('div').textContent = '';
+                }
+            }
+            document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
+        }
+
+        // 为重新开始按钮绑定事件
+        restartButtonPVP.addEventListener('click', restartGamePVP);
     </script>
 </body>
 
-</html>    
+</html>
