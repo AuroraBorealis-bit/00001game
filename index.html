@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>金角银边-井字棋游戏 v2.1</title>
+    <title>金角银边-井字棋游戏 v3.0</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -76,7 +76,8 @@
             color: #666;
         }
 
-        #difficulty-select {
+        /* 为下拉框定义统一的样式 */
+       .select-style {
             margin-bottom: 20px;
             font-size: 16px;
             padding: 10px 15px;
@@ -113,7 +114,7 @@
                 font-size: 14px;
             }
 
-            #difficulty-select {
+           .select-style {
                 font-size: 14px;
             }
 
@@ -129,9 +130,13 @@
     <!-- 玩家对战程序游戏 -->
     <div class="game-container">
         <h2>玩家 vs 程序(测试版)</h2>
-        <select id="difficulty-select">
+        <select id="difficulty-select" class="select-style">
             <option value="easy">简单</option>
             <option value="hard">困难</option>
+        </select>
+        <select id="first-hand-select" class="select-style">
+            <option value="player">玩家先手</option>
+            <option value="ai">AI先手</option>
         </select>
         <p id="playerLabelPVE">当前玩家：X</p>
         <table id="boardPVE"></table>
@@ -148,7 +153,7 @@
         <button id="restartPVP">重新开始</button>
     </div>
 
-    <p id="version">版本号: 2.2</p>
+    <p id="version">版本号: 3.0</p>
 
     <script>
         // 玩家对战程序游戏部分
@@ -156,9 +161,11 @@
         let boardPVE = Array.from({ length: sPVE }, () => Array(sPVE).fill(-1));
         let resultPVE = -1;
         let stepPVE = 1;
+        let gameCountPVE = 0; // 记录玩家对战程序游戏的次数
         const boardElementPVE = document.getElementById('boardPVE');
         const difficultySelect = document.getElementById('difficulty-select');
         const restartButtonPVE = document.getElementById('restartPVE');
+        const firstHandSelect = document.getElementById('first-hand-select');
 
         // 创建棋盘
         for (let i = 0; i < sPVE; i++) {
@@ -256,7 +263,7 @@
             }
         }
 
-        // 简单的 AI 算法，优先检查能获胜的位置，其次检查阻止玩家获胜的位置，再检测特殊情况，最后随机选择
+        // 优化后的 AI 算法
         function handleAIInputPVE() {
             const difficulty = difficultySelect.value;
             let winRow = -1, winCol = -1;
@@ -327,6 +334,18 @@
             }
 
             if (difficulty === 'hard') {
+                if (stepPVE === 1) {
+                    // 困难模式下 AI 先手的优化落子策略
+                    const corners = [[0, 0], [0, 3], [3, 0], [3, 3]];
+                    const randomIndex = Math.floor(Math.random() * corners.length);
+                    const [row, col] = corners[randomIndex];
+                    boardPVE[row][col] = 0;
+                    boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
+                    stepPVE++;
+                    document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                    return;
+                }
+
                 // 困难难度的特殊情况检测
                 if (stepPVE <= 10) {
                     // 检查行
@@ -528,11 +547,14 @@
 
         // 显示游戏结束信息，并提供再来一局的选项
         function showEndMessagePVE(message) {
+            gameCountPVE++;
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
                 restartGamePVE();
             } else {
-                window.close();
+                if (gameCountPVE <= 1) {
+                    window.close();
+                }
             }
         }
 
@@ -546,7 +568,13 @@
                     boardElementPVE.rows[i].cells[j].querySelector('div').textContent = '';
                 }
             }
-            document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+            const firstHand = firstHandSelect.value;
+            if (firstHand === 'ai') {
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：O';
+                setTimeout(handleAIInputPVE, 500);
+            } else {
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+            }
         }
 
         // 为重新开始按钮绑定事件
@@ -558,6 +586,7 @@
         let resultPVP = -1;
         let currentPlayerPVP = -1;
         let stepPVP = 1;
+        let gameCountPVP = 0; // 记录玩家对战游戏的次数
         const boardElementPVP = document.getElementById('boardPVP');
         const restartButtonPVP = document.getElementById('restartPVP');
 
@@ -667,11 +696,14 @@
 
         // 显示游戏结束信息，并提供再来一局的选项
         function showEndMessagePVP(message) {
+            gameCountPVP++;
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
                 restartGamePVP();
             } else {
-                window.close();
+                if (gameCountPVP <= 1) {
+                    window.close();
+                }
             }
         }
 
@@ -691,7 +723,10 @@
 
         // 为重新开始按钮绑定事件
         restartButtonPVP.addEventListener('click', restartGamePVP);
+
+        // 初始化游戏，根据先手选择决定是否让 AI 先行动
+        restartGamePVE();
     </script>
 </body>
 
-</html>
+</html>    
