@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>金角银边-井字棋游戏 v3.0</title>
+    <title>金角银边-井字棋游戏 v3.2</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -153,7 +153,7 @@
         <button id="restartPVP">重新开始</button>
     </div>
 
-    <p id="version">版本号: 3.0</p>
+    <p id="version">版本号: 3.2</p>
 
     <script>
         // 玩家对战程序游戏部分
@@ -551,10 +551,6 @@
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
                 restartGamePVE();
-            } else {
-                if (gameCountPVE <= 1) {
-                    window.close();
-                }
             }
         }
 
@@ -700,10 +696,6 @@
             const choice = confirm(message + "\n是否再来一局？");
             if (choice) {
                 restartGamePVP();
-            } else {
-                if (gameCountPVP <= 1) {
-                    window.close();
-                }
             }
         }
 
@@ -729,4 +721,4 @@
     </script>
 </body>
 
-</html>    
+</html>
