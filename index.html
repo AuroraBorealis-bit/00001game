@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>金角银边-井字棋游戏 v3.2</title>
+    <title>金角银边-井字棋游戏 v3.4</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -153,7 +153,7 @@
         <button id="restartPVP">重新开始</button>
     </div>
 
-    <p id="version">版本号: 3.2</p>
+    <p id="version">版本号: 3.4</p>
 
     <script>
         // 玩家对战程序游戏部分
@@ -270,6 +270,7 @@
             let blockRow = -1, blockCol = -1;
             let specialRow = -1, specialCol = -1;
             let availableMoves = [];
+            let preferredMoves = [];
 
             // 检查是否有能让 AI 获胜的位置
             for (let i = 0; i < sPVE; i++) {
@@ -333,17 +334,76 @@
                 return;
             }
 
+            if (difficulty === 'hard' && stepPVE < 12 && firstHandSelect.value === 'ai') {
+                // 检查边缘两行或两列中间两格已存在一个AI的落子时，优先选择该行或该列的另一个中间位置落子
+                for (let i = 0; i < sPVE; i++) {
+                    if (i === 0 || i === 3) {
+                        if (boardPVE[i][1] === 0 && boardPVE[i][2] === -1) {
+                            specialRow = i;
+                            specialCol = 2;
+                            break;
+                        } else if (boardPVE[i][2] === 0 && boardPVE[i][1] === -1) {
+                            specialRow = i;
+                            specialCol = 1;
+                            break;
+                        }
+                    }
+                }
+                if (specialRow === -1) {
+                    for (let j = 0; j < sPVE; j++) {
+                        if (j === 0 || j === 3) {
+                            if (boardPVE[1][j] === 0 && boardPVE[2][j] === -1) {
+                                specialRow = 2;
+                                specialCol = j;
+                                break;
+                            } else if (boardPVE[2][j] === 0 && boardPVE[1][j] === -1) {
+                                specialRow = 1;
+                                specialCol = j;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (specialRow!== -1) {
+                boardPVE[specialRow][specialCol] = 0;
+                boardElementPVE.rows[specialRow].cells[specialCol].querySelector('div').textContent = 'O';
+                stepPVE++;
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                if (stepPVE > 4) {
+                    checkWinnerPVE();
+                    if (resultPVE === 0) {
+                        showEndMessagePVE("很遗憾，你输了。");
+                    } else if (stepPVE === sPVE * sPVE) {
+                        showEndMessagePVE("平局，没有人获胜。");
+                    }
+                }
+                return;
+            }
+
             if (difficulty === 'hard') {
-                if (stepPVE === 1) {
-                    // 困难模式下 AI 先手的优化落子策略
-                    const corners = [[0, 0], [0, 3], [3, 0], [3, 3]];
-                    const randomIndex = Math.floor(Math.random() * corners.length);
-                    const [row, col] = corners[randomIndex];
-                    boardPVE[row][col] = 0;
-                    boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
-                    stepPVE++;
-                    document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
-                    return;
+                if (stepPVE === 1 && firstHandSelect.value === 'ai') {
+                    // 困难模式下 AI 先手的优化落子策略，优先选择每行或每列的中间部分且不在中间四格
+                    const validPositions = [];
+                    for (let i = 0; i < sPVE; i++) {
+                        for (let j = 0; j < sPVE; j++) {
+                            if (boardPVE[i][j] === -1 &&!(1 <= i && i < 3 && 1 <= j && j < 3)) {
+                                if ((i === 0 || i === 3) && (j === 1 || j === 2)) {
+                                    validPositions.push([i, j]);
+                                }
+                            }
+                        }
+                    }
+                    if (validPositions.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * validPositions.length);
+                        const [row, col] = validPositions[randomIndex];
+                        boardPVE[row][col] = 0;
+                        boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
+                        stepPVE++;
+                        document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                        return;
+                    }
                 }
 
                 // 困难难度的特殊情况检测
@@ -523,11 +583,29 @@
                     if (boardPVE[i][j] === -1) {
                         if (1 <= i && i < 3 && 1 <= j && j < 3 && stepPVE < 12) continue;
                         availableMoves.push([i, j]);
+                        if ((i === 0 || i === 3) && (j === 1 || j === 2)) {
+                            preferredMoves.push([i, j]);
+                        }
                     }
                 }
             }
 
-            if (availableMoves.length > 0) {
+            if (preferredMoves.length > 0) {
+                let randomIndex = Math.floor(Math.random() * preferredMoves.length);
+                let [row, col] = preferredMoves[randomIndex];
+                boardPVE[row][col] = 0;
+                boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
+                stepPVE++;
+                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                if (stepPVE > 4) {
+                    checkWinnerPVE();
+                    if (resultPVE === 0) {
+                        showEndMessagePVE("很遗憾，你输了。");
+                    } else if (stepPVE === sPVE * sPVE) {
+                        showEndMessagePVE("平局，没有人获胜。");
+                    }
+                }
+            } else if (availableMoves.length > 0) {
                 let randomIndex = Math.floor(Math.random() * availableMoves.length);
                 let [row, col] = availableMoves[randomIndex];
                 boardPVE[row][col] = 0;
@@ -720,5 +798,4 @@
         restartGamePVE();
     </script>
 </body>
-
-</html>
+</html>    
