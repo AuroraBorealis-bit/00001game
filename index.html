@@ -1,159 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>金角银边-井字棋游戏 v3.4</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0 10px;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金角银边-井字棋游戏 v4.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
 
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            font-size: 24px;
-        }
-
-        .game-container {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 10px;
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-        }
-
-        h2 {
-            color: #555;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        table {
-            border-collapse: collapse;
-            margin: 20px auto;
-            width: 100%;
-        }
-
-        td {
-            width: 25%;
-            height: auto;
-            padding-bottom: 25%;
-            border: 2px solid #ccc;
-            text-align: center;
-            font-size: 36px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            position: relative;
-        }
-
-        td div {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        td:hover {
-            background-color: #e0e0e0;
-        }
-
-        p {
-            font-size: 16px;
-            color: #666;
-        }
-
-        /* 为下拉框定义统一的样式 */
-       .select-style {
-            margin-bottom: 20px;
-            font-size: 16px;
-            padding: 10px 15px;
-            min-width: 150px;
-        }
-
-        button {
-            font-size: 16px;
-            padding: 10px 20px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        #version {
-            font-size: 14px;
-            color: #999;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 20px;
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // 主色调：紫色
+                        secondary: '#10B981', // 辅助色：绿色
+                        accent: '#F59E0B', // 强调色：橙色
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-subtle': 'bounce-subtle 1.5s infinite',
+                    },
+                    keyframes: {
+                        'bounce-subtle': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                },
             }
+        }
+    </script>
 
-            h2 {
-                font-size: 18px;
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
             }
-
-            td {
-                font-size: 24px;
+            .board-cell {
+                @apply relative aspect-square border-2 border-gray-300 cursor-pointer transition-all duration-200 hover:bg-gray-100;
             }
-
-            p {
-                font-size: 14px;
+            .board-cell-x::after {
+                @apply absolute inset-0 flex items-center justify-center text-4xl font-bold text-primary content-['X'];
             }
-
-           .select-style {
-                font-size: 14px;
+            .board-cell-o::after {
+                @apply absolute inset-0 flex items-center justify-center text-4xl font-bold text-secondary content-['O'];
             }
-
-            button {
-                font-size: 14px;
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+            .select-custom {
+                @apply bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary appearance-none cursor-pointer;
             }
         }
     </style>
 </head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- 顶部标题 -->
+    <header class="mb-8 text-center">
+        <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark mb-2">
+            <span class="text-primary">金角银边</span> - 井字棋游戏
+        </h1>
+        <p class="text-gray-500 text-lg">策略性4x4井字棋挑战</p>
+    </header>
 
-<body>
-    <h1>金角银边-井字棋游戏</h1>
-    <!-- 玩家对战程序游戏 -->
-    <div class="game-container">
-        <h2>玩家 vs 程序(测试版)</h2>
-        <select id="difficulty-select" class="select-style">
-            <option value="easy">简单</option>
-            <option value="hard">困难</option>
-        </select>
-        <select id="first-hand-select" class="select-style">
-            <option value="player">玩家先手</option>
-            <option value="ai">AI先手</option>
-        </select>
-        <p id="playerLabelPVE">当前玩家：X</p>
-        <table id="boardPVE"></table>
-        <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
-        <button id="restartPVE">重新开始</button>
+    <!-- 游戏容器 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+        <!-- 玩家对战程序 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+            <div class="bg-primary text-white p-4">
+                <h2 class="text-xl font-bold flex items-center">
+                    <i class="fa-solid fa-robot mr-2"></i> 玩家 vs 程序
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">难度:</label>
+                        <select id="difficulty-select" class="select-custom">
+                            <option value="easy">简单</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">先手:</label>
+                        <select id="first-hand-select" class="select-custom">
+                            <option value="player">玩家先手</option>
+                            <option value="ai">AI先手</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <p id="playerLabelPVE" class="text-lg font-medium text-gray-800">
+                        当前玩家: <span class="inline-block w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center">X</span>
+                    </p>
+                </div>
+
+                <!-- 棋盘 -->
+                <div class="relative mx-auto w-full max-w-xs aspect-square bg-gray-50 rounded-lg shadow-inner overflow-hidden">
+                    <table id="boardPVE" class="w-full h-full">
+                        <!-- JavaScript 将动态生成棋盘 -->
+                    </table>
+                </div>
+
+                <div class="mt-6">
+                    <p class="text-sm text-gray-600 italic">
+                        <i class="fa-solid fa-info-circle mr-1"></i> 规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域！
+                    </p>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <button id="restartPVE" class="btn-primary">
+                        <i class="fa-solid fa-refresh mr-2"></i> 重新开始
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家对战玩家 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+            <div class="bg-secondary text-white p-4">
+                <h2 class="text-xl font-bold flex items-center">
+                    <i class="fa-solid fa-users mr-2"></i> 玩家对战
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p id="playerLabelPVP" class="text-lg font-medium text-gray-800">
+                        当前玩家: <span class="inline-block w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center">X</span>
+                    </p>
+                </div>
+
+                <!-- 棋盘 -->
+                <div class="relative mx-auto w-full max-w-xs aspect-square bg-gray-50 rounded-lg shadow-inner overflow-hidden">
+                    <table id="boardPVP" class="w-full h-full">
+                        <!-- JavaScript 将动态生成棋盘 -->
+                    </table>
+                </div>
+
+                <div class="mt-6">
+                    <p class="text-sm text-gray-600 italic">
+                        <i class="fa-solid fa-info-circle mr-1"></i> 规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域！
+                    </p>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <button id="restartPVP" class="btn-secondary">
+                        <i class="fa-solid fa-refresh mr-2"></i> 重新开始
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- 玩家对战游戏 -->
-    <div class="game-container">
-        <h2>玩家对战</h2>
-        <p id="playerLabelPVP">当前玩家：X</p>
-        <table id="boardPVP"></table>
-        <p>规则：在行、列或对角线上连成三个的玩家将赢得游戏。注意：在第 12 步之前不要输入中心区域（核心 4 个位置）！</p>
-        <button id="restartPVP">重新开始</button>
-    </div>
-
-    <p id="version">版本号: 3.4 made by zzo</p>
+    <!-- 页脚 -->
+    <footer class="mt-10 text-center text-gray-500 text-sm">
+        <p>版本号: 4.0 </p>
+        <p class="mt-2">© 2025 made by zzo | <i class="fa-solid fa-shield-check"></i> 安全游戏体验</p>
+    </footer>
 
     <script>
         // 玩家对战程序游戏部分
@@ -172,8 +185,9 @@
             const row = document.createElement('tr');
             for (let j = 0; j < sPVE; j++) {
                 const cell = document.createElement('td');
-                const contentDiv = document.createElement('div');
-                cell.appendChild(contentDiv);
+                cell.className = 'board-cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
                 cell.addEventListener('click', () => handlePlayerClickPVE(i, j));
                 row.appendChild(cell);
             }
@@ -234,21 +248,28 @@
         // 处理玩家点击事件
         function handlePlayerClickPVE(row, col) {
             if (resultPVE!== -1) {
-                alert("游戏已结束，请重新开始。");
+                showNotification("游戏已结束，请重新开始。", "error");
                 return;
             }
             if (boardPVE[row][col]!== -1) {
-                alert("该位置已被占用，请选择其他位置。");
+                showNotification("该位置已被占用，请选择其他位置。", "error");
                 return;
             }
             if (1 <= row && row < 3 && 1 <= col && col < 3 && stepPVE < 12) {
-                alert("请在第 12 步之前选择边缘位置。");
+                showNotification("请在第 12 步之前选择边缘位置。", "warning");
                 return;
             }
+
+            // 更新棋盘状态
             boardPVE[row][col] = 1;
-            boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'X';
+            const cell = boardElementPVE.rows[row].cells[col];
+            cell.classList.add('board-cell-x');
+            cell.classList.add('animate-bounce-subtle');
+            setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
             stepPVE++;
-            document.getElementById('playerLabelPVE').textContent = '当前玩家：O';
+            updatePlayerLabelPVE();
+
             if (stepPVE > 4) {
                 checkWinnerPVE();
                 if (resultPVE === 1) {
@@ -261,6 +282,14 @@
             } else {
                 setTimeout(handleAIInputPVE, 500);
             }
+        }
+
+        // 更新玩家标签显示
+        function updatePlayerLabelPVE() {
+            const label = document.getElementById('playerLabelPVE');
+            const currentPlayer = stepPVE % 2 === 1? 'X' : 'O';
+            const colorClass = currentPlayer === 'X'? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary';
+            label.innerHTML = `当前玩家: <span class="inline-block w-6 h-6 rounded-full ${colorClass} flex items-center justify-center">${currentPlayer}</span>`;
         }
 
         // 优化后的 AI 算法
@@ -291,9 +320,14 @@
 
             if (winRow!== -1) {
                 boardPVE[winRow][winCol] = 0;
-                boardElementPVE.rows[winRow].cells[winCol].querySelector('div').textContent = 'O';
+                const cell = boardElementPVE.rows[winRow].cells[winCol];
+                cell.classList.add('board-cell-o');
+                cell.classList.add('animate-bounce-subtle');
+                setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                 stepPVE++;
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                updatePlayerLabelPVE();
+
                 checkWinnerPVE();
                 if (resultPVE === 0) {
                     showEndMessagePVE("很遗憾，你输了。");
@@ -320,9 +354,14 @@
 
             if (blockRow!== -1) {
                 boardPVE[blockRow][blockCol] = 0;
-                boardElementPVE.rows[blockRow].cells[blockCol].querySelector('div').textContent = 'O';
+                const cell = boardElementPVE.rows[blockRow].cells[blockCol];
+                cell.classList.add('board-cell-o');
+                cell.classList.add('animate-bounce-subtle');
+                setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                 stepPVE++;
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                updatePlayerLabelPVE();
+
                 if (stepPVE > 4) {
                     checkWinnerPVE();
                     if (resultPVE === 0) {
@@ -368,9 +407,14 @@
 
             if (specialRow!== -1) {
                 boardPVE[specialRow][specialCol] = 0;
-                boardElementPVE.rows[specialRow].cells[specialCol].querySelector('div').textContent = 'O';
+                const cell = boardElementPVE.rows[specialRow].cells[specialCol];
+                cell.classList.add('board-cell-o');
+                cell.classList.add('animate-bounce-subtle');
+                setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                 stepPVE++;
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                updatePlayerLabelPVE();
+
                 if (stepPVE > 4) {
                     checkWinnerPVE();
                     if (resultPVE === 0) {
@@ -399,9 +443,13 @@
                         const randomIndex = Math.floor(Math.random() * validPositions.length);
                         const [row, col] = validPositions[randomIndex];
                         boardPVE[row][col] = 0;
-                        boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
+                        const cell = boardElementPVE.rows[row].cells[col];
+                        cell.classList.add('board-cell-o');
+                        cell.classList.add('animate-bounce-subtle');
+                        setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                         stepPVE++;
-                        document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                        updatePlayerLabelPVE();
                         return;
                     }
                 }
@@ -563,9 +611,14 @@
 
             if (specialRow!== -1) {
                 boardPVE[specialRow][specialCol] = 0;
-                boardElementPVE.rows[specialRow].cells[specialCol].querySelector('div').textContent = 'O';
+                const cell = boardElementPVE.rows[specialRow].cells[specialCol];
+                cell.classList.add('board-cell-o');
+                cell.classList.add('animate-bounce-subtle');
+                setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                 stepPVE++;
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                updatePlayerLabelPVE();
+
                 if (stepPVE > 4) {
                     checkWinnerPVE();
                     if (resultPVE === 0) {
@@ -594,9 +647,14 @@
                 let randomIndex = Math.floor(Math.random() * preferredMoves.length);
                 let [row, col] = preferredMoves[randomIndex];
                 boardPVE[row][col] = 0;
-                boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
+                const cell = boardElementPVE.rows[row].cells[col];
+                cell.classList.add('board-cell-o');
+                cell.classList.add('animate-bounce-subtle');
+                setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                 stepPVE++;
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                updatePlayerLabelPVE();
+
                 if (stepPVE > 4) {
                     checkWinnerPVE();
                     if (resultPVE === 0) {
@@ -609,9 +667,14 @@
                 let randomIndex = Math.floor(Math.random() * availableMoves.length);
                 let [row, col] = availableMoves[randomIndex];
                 boardPVE[row][col] = 0;
-                boardElementPVE.rows[row].cells[col].querySelector('div').textContent = 'O';
+                const cell = boardElementPVE.rows[row].cells[col];
+                cell.classList.add('board-cell-o');
+                cell.classList.add('animate-bounce-subtle');
+                setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
                 stepPVE++;
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
+                updatePlayerLabelPVE();
+
                 if (stepPVE > 4) {
                     checkWinnerPVE();
                     if (resultPVE === 0) {
@@ -626,10 +689,60 @@
         // 显示游戏结束信息，并提供再来一局的选项
         function showEndMessagePVE(message) {
             gameCountPVE++;
-            const choice = confirm(message + "\n是否再来一局？");
-            if (choice) {
-                restartGamePVE();
-            }
+            const notification = document.createElement('div');
+            notification.className = 'fixed inset-0 flex items-center justify-center bg-black/50 z-50 transition-opacity duration-300';
+            notification.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full transform transition-all duration-300 scale-100">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
+                            <i class="fa-solid fa-trophy text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">${message}</h3>
+                        <p class="text-gray-600 mb-6">本局共进行了 ${stepPVE-1} 步</p>
+                        <div class="flex justify-center">
+                            <button id="playAgainPVE" class="btn-primary">
+                                <i class="fa-solid fa-play mr-2"></i> 再来一局
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            document.getElementById('playAgainPVE').addEventListener('click', () => {
+                notification.classList.add('opacity-0');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    restartGamePVE();
+                }, 300);
+            });
+        }
+
+        // 显示通知消息
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+            const icon = type === 'error' ? 'fa-exclamation-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full z-50 flex items-center`;
+            notification.innerHTML = `
+                <i class="fa-solid ${icon} mr-2"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+
+            // 显示通知
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+
+            // 自动关闭
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // 重新开始玩家对战程序游戏
@@ -637,17 +750,20 @@
             resultPVE = -1;
             stepPVE = 1;
             boardPVE = Array.from({ length: sPVE }, () => Array(sPVE).fill(-1));
+
+            // 清除棋盘
             for (let i = 0; i < sPVE; i++) {
                 for (let j = 0; j < sPVE; j++) {
-                    boardElementPVE.rows[i].cells[j].querySelector('div').textContent = '';
+                    const cell = boardElementPVE.rows[i].cells[j];
+                    cell.className = 'board-cell';
                 }
             }
+
             const firstHand = firstHandSelect.value;
+            updatePlayerLabelPVE();
+
             if (firstHand === 'ai') {
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：O';
                 setTimeout(handleAIInputPVE, 500);
-            } else {
-                document.getElementById('playerLabelPVE').textContent = '当前玩家：X';
             }
         }
 
@@ -669,8 +785,9 @@
             const row = document.createElement('tr');
             for (let j = 0; j < sPVP; j++) {
                 const cell = document.createElement('td');
-                const contentDiv = document.createElement('div');
-                cell.appendChild(contentDiv);
+                cell.className = 'board-cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
                 cell.addEventListener('click', () => onClickPVP(i, j));
                 row.appendChild(cell);
             }
@@ -728,34 +845,45 @@
             checkAndSetPVP(1, 3, 2, 2, 3, 1);
         }
 
+        // 更新玩家标签显示
+        function updatePlayerLabelPVP() {
+            const label = document.getElementById('playerLabelPVP');
+            const currentPlayer = currentPlayerPVP === -1? 'X' : 'O';
+            const colorClass = currentPlayer === 'X'? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary';
+            label.innerHTML = `当前玩家: <span class="inline-block w-6 h-6 rounded-full ${colorClass} flex items-center justify-center">${currentPlayer}</span>`;
+        }
+
         // 处理按钮点击事件的函数
         function onClickPVP(row, col) {
             if (resultPVP!== -1) {
-                alert("游戏已结束，请重新开始。");
+                showNotification("游戏已结束，请重新开始。", "error");
                 return;
             }
             if (boardPVP[row][col]!== -1) {
-                alert("该位置已被占用，请选择其他位置。");
+                showNotification("该位置已被占用，请选择其他位置。", "error");
                 return;
             }
             if (1 <= row && row < 3 && 1 <= col && col < 3 && stepPVP < 12) {
-                alert("请在第 12 步之前选择边缘位置。");
+                showNotification("请在第 12 步之前选择边缘位置。", "warning");
                 return;
             }
-            if (currentPlayerPVP === -1) {
-                boardPVP[row][col] = 1;
-                boardElementPVP.rows[row].cells[col].querySelector('div').textContent = 'X';
-                document.getElementById('playerLabelPVP').textContent = '当前玩家：O';
-            } else {
-                boardPVP[row][col] = 0;
-                boardElementPVP.rows[row].cells[col].querySelector('div').textContent = 'O';
-                document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
-            }
+
+            // 更新棋盘状态
+            const player = currentPlayerPVP === -1? 1 : 0;
+            boardPVP[row][col] = player;
+            const cell = boardElementPVP.rows[row].cells[col];
+            cell.classList.add(player === 1? 'board-cell-x' : 'board-cell-o');
+            cell.classList.add('animate-bounce-subtle');
+            setTimeout(() => cell.classList.remove('animate-bounce-subtle'), 1000);
+
             stepPVP++;
-            if (stepPVP === 11) {
-                alert("注意：O 现在可以输入中心位置。");
-            }
             currentPlayerPVP *= -1;
+            updatePlayerLabelPVP();
+
+            if (stepPVP === 11) {
+                showNotification("注意：O 现在可以输入中心位置。", "info");
+            }
+
             if (stepPVP > 4) {
                 checkWinnerPVP();
                 if (resultPVP === 1) {
@@ -771,10 +899,33 @@
         // 显示游戏结束信息，并提供再来一局的选项
         function showEndMessagePVP(message) {
             gameCountPVP++;
-            const choice = confirm(message + "\n是否再来一局？");
-            if (choice) {
-                restartGamePVP();
-            }
+            const notification = document.createElement('div');
+            notification.className = 'fixed inset-0 flex items-center justify-center bg-black/50 z-50 transition-opacity duration-300';
+            notification.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full transform transition-all duration-300 scale-100">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full ${resultPVP === 1 ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'} mb-4">
+                            <i class="fa-solid fa-trophy text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">${message}</h3>
+                        <p class="text-gray-600 mb-6">本局共进行了 ${stepPVP-1} 步</p>
+                        <div class="flex justify-center">
+                            <button id="playAgainPVP" class="btn-secondary">
+                                <i class="fa-solid fa-play mr-2"></i> 再来一局
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            document.getElementById('playAgainPVP').addEventListener('click', () => {
+                notification.classList.add('opacity-0');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    restartGamePVP();
+                }, 300);
+            });
         }
 
         // 重新开始玩家对战游戏
@@ -783,19 +934,24 @@
             stepPVP = 1;
             currentPlayerPVP = -1;
             boardPVP = Array.from({ length: sPVP }, () => Array(sPVP).fill(-1));
+
+            // 清除棋盘
             for (let i = 0; i < sPVP; i++) {
                 for (let j = 0; j < sPVP; j++) {
-                    boardElementPVP.rows[i].cells[j].querySelector('div').textContent = '';
+                    const cell = boardElementPVP.rows[i].cells[j];
+                    cell.className = 'board-cell';
                 }
             }
-            document.getElementById('playerLabelPVP').textContent = '当前玩家：X';
+
+            updatePlayerLabelPVP();
         }
 
         // 为重新开始按钮绑定事件
         restartButtonPVP.addEventListener('click', restartGamePVP);
 
-        // 初始化游戏，根据先手选择决定是否让 AI 先行动
+        // 初始化游戏
         restartGamePVE();
+        restartGamePVP();
     </script>
 </body>
-</html>    
+</html>
