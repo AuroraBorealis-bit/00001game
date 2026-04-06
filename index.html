@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 核心：适配手机屏幕，禁止缩放 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>单光纤功率传输计算器</title>
     <style>
@@ -81,6 +80,7 @@
             background-color: #e8f4fd;
             border-radius: 8px;
             text-align: center;
+            margin-bottom: 10px;
         }
 
         .result-title {
@@ -93,6 +93,21 @@
             color: #e74c3c;
             font-size: 24px;
             font-weight: bold;
+        }
+
+        .battery-box {
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .battery-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
         }
 
         .unit {
@@ -111,7 +126,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>光纤功率传输计算器</h2>
+        <h2>单光纤功率传输计算器</h2>
         
         <div class="input-group">
             <label>传输距离 (KM)</label>
@@ -123,7 +138,7 @@
             <input type="number" id="inputPower" placeholder="请输入输入电功率" min="0" step="0.01">
         </div>
 
-        <button onclick="calculatePower()">计算输出电功率</button>
+        <button onclick="calculatePower()">计算输出电功率 & 电池重量</button>
 
         <div class="result-box">
             <div class="result-title">输出电功率：</div>
@@ -131,36 +146,61 @@
             <span class="unit">W</span>
         </div>
 
-        <!-- 内置固定参数说明 -->
+        <!-- 新增：24小时电池重量显示 -->
+        <div class="battery-box" id="batteryResult" style="display:none;">
+            <div class="battery-item">
+                <span>📊 24h激光器所需功率等效电池重量：</span>
+                <strong id="laserBatteryWeight">0.00 kg</strong>
+            </div>
+            <div class="battery-item">
+                <span>📊 24h输出功率等效电池重量：</span>
+                <strong id="outputBatteryWeight">0.00 kg</strong>
+            </div>
+        </div>
+
         <div class="params">
             固定参数：<br>
-            光纤传输损耗：0.168dB/km | 空-实耦合损耗：0.3dB×2 | 激光器电光转换效率：30% | 光芯片光电转换效率：35% | 分光损耗：10%
+            光纤传输损耗：0.168dB/km | 耦合损耗：0.3dB×2 | 电光转换30% | 光电转换35% | 分光损耗10%<br>
+            电池：宁德时代麒麟电池 能量密度 255Wh/kg
         </div>
     </div>
 
     <script>
-        // 核心计算函数
         function calculatePower() {
-            // 1. 获取用户输入值
+            // 1. 获取输入
             const distance = parseFloat(document.getElementById('distance').value) || 0;
             const inputPower = parseFloat(document.getElementById('inputPower').value) || 0;
 
             // 2. 固定参数
-            const fiberLoss = 0.168;        // 光纤传输损耗 dB/km
-            const coupleLoss = 0.3;         // 单次耦合损耗 dB
-            const laserEfficiency = 0.30*0.35;   // 电光转换效率 30% 光电转换效率35%
+            const fiberLoss = 0.168;
+            const coupleLoss = 0.3;
+            const laserEfficiency = 0.30 * 0.35;
+            const energyDensity = 255; // 麒麟电池 255Wh/kg
+            const hours = 24;
 
-            // 3. 计算总损耗（dB）：耦合损耗×2 + 传输距离×光纤损耗
+            // 3. 总损耗
             const totalLossDb = coupleLoss * 2 + distance * fiberLoss;
-            
-            // 4. dB转换为线性倍数（核心公式：损耗倍数 = 10^(-损耗dB/10)）
             const lossMultiplier = Math.pow(10, -totalLossDb / 10);
 
-            // 5. 最终输出功率公式：输入功率 × 转换效率 × 总损耗倍数 × 转换效率
-            const outputPower = inputPower * laserEfficiency * lossMultiplier * laserEfficiency*0.9;
+            // 4. 输出功率（原公式不变）
+            const outputPower = inputPower * laserEfficiency * lossMultiplier * laserEfficiency * 0.9;
 
-            // 6. 保留4位小数显示结果
+            // --------------------------
+            // 新增：24小时电池重量计算
+            // --------------------------
+            // 1) 激光器24h总能量 = 输入功率 × 24h
+            const laserEnergy = inputPower * hours;
+            const laserBatteryWeight = laserEnergy / energyDensity;
+
+            // 2) 输出功率等效24h电池重量
+            const outputEnergy = outputPower * hours;
+            const outputBatteryWeight = outputEnergy / energyDensity;
+
+            // 5. 显示结果
             document.getElementById('outputResult').innerText = outputPower.toFixed(4);
+            document.getElementById('laserBatteryWeight').innerText = laserBatteryWeight.toFixed(3) + " kg";
+            document.getElementById('outputBatteryWeight').innerText = outputBatteryWeight.toFixed(3) + " kg";
+            document.getElementById('batteryResult').style.display = "block";
         }
     </script>
 </body>
