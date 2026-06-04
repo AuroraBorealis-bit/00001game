@@ -174,16 +174,17 @@
             // 2. 固定参数
             const fiberLoss = 0.168;
             const coupleLoss = 0.3;
-            const laserEfficiency = 0.30 * 0.35;
+            const laserEfficiency = 0.30;
             const energyDensity = 255; // 麒麟电池 255Wh/kg
             const hours = 24;
+            const PDEfficiency = 0.35;
 
             // 3. 总损耗
-            const totalLossDb = coupleLoss * 2 + distance * fiberLoss;
+            const totalLossDb = 1 + distance * fiberLoss;
             const lossMultiplier = Math.pow(10, -totalLossDb / 10);
 
             // 4. 输出功率（原公式不变）
-            const outputPower = inputPower * laserEfficiency * lossMultiplier *0.9;
+            const outputPower = inputPower * laserEfficiency * lossMultiplier * PDEfficiency;
 
             // --------------------------
             // 新增：24小时电池重量计算
