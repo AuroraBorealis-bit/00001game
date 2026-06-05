@@ -122,6 +122,14 @@
             text-align: center;
             line-height: 1.5;
         }
+
+        .params-title {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -146,7 +154,33 @@
             <span class="unit">W</span>
         </div>
 
-        <!-- 新增：24小时电池重量显示 -->
+        <!-- 参数调节区域移动到输出功率之后、电池重量之前 -->
+        <div class="params-title">可调节损耗参数（默认值已填好）</div>
+        <div class="input-group">
+            <label>光纤传输损耗 (dB/km)</label>
+            <input type="number" id="fiberLoss" value="0.168" min="0" step="0.001">
+        </div>
+        <div class="input-group">
+            <label>单次耦合损耗 (dB)（共两次）</label>
+            <input type="number" id="coupleLoss" value="0.3" min="0" step="0.001">
+        </div>
+        <div class="input-group">
+            <label>电光转换效率 (%)</label>
+            <input type="number" id="laserEfficiency" value="30" min="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>光电转换效率 (%)</label>
+            <input type="number" id="PDEfficiency" value="35" min="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>分光损耗比例 (%)</label>
+            <input type="number" id="spectrometerLoss" value="10" min="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>电池能量密度 (Wh/kg)</label>
+            <input type="number" id="energyDensity" value="255" min="0" step="1">
+        </div>
+
         <div class="battery-box" id="batteryResult" style="display:none;">
             <div class="battery-item">
                 <span>📊 24h激光器所需功率等效电池重量：</span>
@@ -159,9 +193,8 @@
         </div>
 
         <div class="params">
-            固定参数：<br>
-            光纤传输损耗：0.168dB/km | 耦合损耗：0.3dB×2 | 电光转换30% | 光电转换35% | 分光损耗10%<br>
-            电池：宁德时代麒麟电池 能量密度 255Wh/kg
+            耦合损耗默认按 2 次计算 | 分光损耗 10% = 效率 0.9<br>
+            计算逻辑：总损耗 → 光功率 → 电功率输出 → 24小时电池重量
         </div>
     </div>
 
@@ -171,34 +204,36 @@
             const distance = parseFloat(document.getElementById('distance').value) || 0;
             const inputPower = parseFloat(document.getElementById('inputPower').value) || 0;
 
-            // 2. 固定参数
-            const fiberLoss = 0.168;
-            const coupleLoss = 0.3;
-            const laserEfficiency = 0.30;
-            const energyDensity = 255; // 麒麟电池 255Wh/kg
-            const hours = 24;
-            const PDEfficiency = 0.35;
-            const spectrometerEfficiency = 0.9;
+            // 2. 读取可编辑参数
+            const fiberLoss = parseFloat(document.getElementById('fiberLoss').value) || 0.168;
+            const coupleLoss = parseFloat(document.getElementById('coupleLoss').value) || 0.3;
+            const laserEfficiencyPercent = parseFloat(document.getElementById('laserEfficiency').value) || 30;
+            const PDEfficiencyPercent = parseFloat(document.getElementById('PDEfficiency').value) || 35;
+            const spectrometerLossPercent = parseFloat(document.getElementById('spectrometerLoss').value) || 10;
+            const energyDensity = parseFloat(document.getElementById('energyDensity').value) || 255;
 
-            // 3. 总损耗
-            const totalLossDb = 1 + distance * fiberLoss;
+            // 转为小数
+            const laserEfficiency = laserEfficiencyPercent / 100;
+            const PDEfficiency = PDEfficiencyPercent / 100;
+            const spectrometerEfficiency = 1 - spectrometerLossPercent / 100;
+
+            const hours = 24;
+
+            // 3. 总损耗（光纤 + 2次耦合）
+            const totalLossDb = distance * fiberLoss + 2 * coupleLoss;
             const lossMultiplier = Math.pow(10, -totalLossDb / 10);
 
-            // 4. 输出功率（原公式不变）
-            const outputPower = inputPower * laserEfficiency * lossMultiplier * PDEfficiency*spectrometerEfficiency;
+            // 4. 输出功率
+            const outputPower = inputPower * laserEfficiency * lossMultiplier * PDEfficiency * spectrometerEfficiency;
 
-            // --------------------------
-            // 新增：24小时电池重量计算
-            // --------------------------
-            // 1) 激光器24h总能量 = 输入功率 × 24h
+            // 5. 电池重量
             const laserEnergy = inputPower * hours;
             const laserBatteryWeight = laserEnergy / energyDensity;
 
-            // 2) 输出功率等效24h电池重量
             const outputEnergy = outputPower * hours;
             const outputBatteryWeight = outputEnergy / energyDensity;
 
-            // 5. 显示结果
+            // 显示
             document.getElementById('outputResult').innerText = outputPower.toFixed(4);
             document.getElementById('laserBatteryWeight').innerText = laserBatteryWeight.toFixed(3) + " kg";
             document.getElementById('outputBatteryWeight').innerText = outputBatteryWeight.toFixed(3) + " kg";
